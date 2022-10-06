@@ -66,5 +66,5 @@ def solve(coefficient_matrix, results_matrix):
         line_value = 0
         for j in range(0, len(inverse_matrix[i])):
             line_value += inverse_matrix[i][j] * results_matrix[j][0]
-        solution.append(line_value)
+        solution.append([line_value])
     return solution
