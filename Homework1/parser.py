@@ -81,6 +81,4 @@ def get_equation_system_from_file(filepath):
     coefficient_matrix = [find_coefficient_line(equation1_str), find_coefficient_line(equation2_str),
                           find_coefficient_line(equation3_str)]
 
-    print(coefficient_matrix)
-    print(results_matrix)
     return coefficient_matrix, results_matrix
