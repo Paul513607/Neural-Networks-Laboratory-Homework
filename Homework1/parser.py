@@ -32,6 +32,9 @@ def find_coefficient_line(equation_str):
     index = equation_str.find('x')
     if index == -1:
         line_arr.append(0)
+        # Edge case if the is no x and no sign before the y coefficient
+        if equation_str[0] not in ('+', '-'):
+            equation_str = '+' + equation_str
     else:
         if index == 0:
             line_arr.append(1)
@@ -48,7 +51,10 @@ def find_coefficient_line(equation_str):
     # the index for y in the current string won't be 0 because it always has a +/- sign before it
     else:
         if index == 1:
-            line_arr.append(1)
+            if equation_str[0] == '+':
+                line_arr.append(1)
+            elif equation_str[0] == '-':
+                line_arr.append(-1)
         else:
             line_arr.append(int(equation_str[0:index]))
         equation_str = equation_str[index + 1:]
@@ -59,7 +65,10 @@ def find_coefficient_line(equation_str):
         line_arr.append(0)
     # the index for z in the current string won't be 0 because it always has a +/- sign before it
     elif index == 1:
-        line_arr.append(1)
+        if equation_str[0] == '+':
+            line_arr.append(1)
+        elif equation_str[0] == '-':
+            line_arr.append(-1)
     else:
         line_arr.append(int(equation_str[0:index]))
 
