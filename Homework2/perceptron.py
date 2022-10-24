@@ -50,7 +50,7 @@ class Perceptron:
                 self.W += weights_delta
                 self.B += bias_delta
 
-            print(f"[{self.speciality_value}] Epoch: {i} Accuracy: {self.accuracy(train_set, train_set_labels, True)}")
+            print(f"[{self.speciality_value}] Epoch: {i + 1} Accuracy: {self.accuracy(train_set, train_set_labels, True)}")
 
     def accuracy(self, test_set, test_set_labels, running=False):
         if not running:
