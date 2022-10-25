@@ -10,7 +10,7 @@ def activation2(z_array):
     return np.array(list(map(lambda z: z > 0, z_array)))
 
 
-def shuffle_set(train_set, train_set_labels):
+def shuffle_sets(train_set, train_set_labels):
     tmp_set1, tmp_set2 = shuffle(train_set, train_set_labels, random_state=0)
     return tmp_set1, tmp_set2
 
@@ -31,7 +31,7 @@ class Perceptron:
         # Calculate the number of batches
         number_of_batches = len(train_set) // batch_size
         # Shuffle the data
-        train_set, train_set_labels = shuffle_set(train_set, train_set_labels)
+        train_set, train_set_labels = shuffle_sets(train_set, train_set_labels)
 
         # Initialize the weights and bias
         self.W = np.random.rand(len(train_set[0]) + 1)
@@ -68,7 +68,7 @@ class Perceptron:
         # Calculate the number of batches
         number_of_batches = len(train_set) // batch_size
         # Shuffle the data
-        train_set, train_set_labels = shuffle_set(train_set, train_set_labels)
+        train_set, train_set_labels = shuffle_sets(train_set, train_set_labels)
 
         # Initialize the weights and bias
         self.W = np.random.rand(len(train_set[0]) + 1)
