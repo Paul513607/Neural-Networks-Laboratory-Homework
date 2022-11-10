@@ -18,7 +18,6 @@ class Network:
         self.epochs = epochs
         self.layers = []
         for idx, input_size in enumerate(layer_sizes[:-1]):
-            # the current layers nr of outputs(nodes) is the next layers number of inputs
             self.layers += [Layer(input_size, layer_sizes[idx + 1])]
 
     def make_copy(self):
@@ -37,50 +36,51 @@ class Network:
             training_input = layer.activation
         output_layer = self.layers[-1]
         output = output_layer.eval(training_input)
-        output_layer.activation_for_layer(output, util.sigmoid_activation)
+        output_layer.activation_for_layer(output, util.softmax_activation)
         return output_layer.activation
 
     def backpropagation(self, train_set, train_labels, lin_factor, friction_param, dataset_size):
-        # Compute the error for the final layer
+        output_layer = self.layers[-1]
+        hidden_layer = self.layers[-2]
+
+        # Compute the error for the output layer
         output_layer_activation = self.feed_forward(train_set)
         t = np.array([util.convert_label_to_array(label, self.layers[-1].neurons_count) for label in train_labels])
         output_layer_err = util.cross_entropy_derivative(output_layer_activation, t)
-        self.layers[-1].error = output_layer_err
+        output_layer.error = output_layer_err
 
-        # Compute the error for the hidden layers
-        for index, layer in reversed(list(enumerate(self.layers[:-1]))):
-            next_layer = self.layers[index + 1]
-            layer.error = np.multiply(util.sigmoid_activation_derivative(layer.activation),
-                                      np.dot(next_layer.error, next_layer.weights.T))
+        # Compute the gradients for the output layer
+        output_layer.gradient_w = np.dot(hidden_layer.activation.T, output_layer.error)
+        output_layer.gradient_b = output_layer.error
 
-            next_layer.cost_gradient_w = np.dot(layer.activation.T, next_layer.error)
-            next_layer.cost_gradient_b = next_layer.error
+        # Update layer friction
+        if output_layer.friction is None:
+            output_layer.friction = np.zeros(output_layer.gradient_w.shape)
+        output_layer.friction = friction_param * output_layer.friction - (self.learning_rate / len(train_set)) * output_layer.gradient_w
 
-            # Update layer friction
-            if next_layer.friction is None:
-                next_layer.friction = np.zeros(next_layer.cost_gradient_w.shape)
-            next_layer.friction = friction_param * next_layer.friction - (self.learning_rate / len(train_set)) * next_layer.cost_gradient_w
+        # Update the weights and biases for output layer
+        output_layer.weights = (1 - self.learning_rate * lin_factor / dataset_size) * output_layer.weights \
+                               + output_layer.friction
+        output_layer.biases += np.sum((-self.learning_rate) * output_layer.gradient_b, axis=0)
 
-            # Update the weights and biases for next layer
-            next_layer.weights = (1 - self.learning_rate * lin_factor / dataset_size) * \
-                                 next_layer.weights + next_layer.friction
-            next_layer.biases += np.sum((-self.learning_rate) * next_layer.cost_gradient_b, axis=0)
+        # Compute the error for the hidden layer
+        hidden_layer.error = np.multiply(util.sigmoid_activation_derivative(hidden_layer.activation),
+                                         np.dot(output_layer.error, output_layer.weights.T))
 
-        # Compute the error for the first layer
-        first_layer = self.layers[0]
-        first_layer.cost_gradient_w = np.dot(train_set.T, first_layer.error)
-        first_layer.cost_gradient_b = first_layer.error
+        # Compute the gradients for the hidden layer
+        hidden_layer.gradient_w = np.dot(train_set.T, hidden_layer.error)
+        hidden_layer.gradient_b = hidden_layer.error
 
         # Update first layer friction
-        if first_layer.friction is None:
-            first_layer.friction = np.zeros(first_layer.cost_gradient_w.shape)
-        first_layer.friction = friction_param * first_layer.friction - \
-                               (self.learning_rate / len(train_set)) * first_layer.cost_gradient_w
+        if hidden_layer.friction is None:
+            hidden_layer.friction = np.zeros(hidden_layer.gradient_w.shape)
+        hidden_layer.friction = friction_param * hidden_layer.friction - \
+                               (self.learning_rate / len(train_set)) * hidden_layer.gradient_w
 
-        # Update the weights and biases for first layer
-        first_layer.weights = (1 - self.learning_rate * lin_factor / dataset_size) * \
-                                first_layer.weights + first_layer.friction
-        first_layer.biases += np.sum((-self.learning_rate) * first_layer.cost_gradient_b, axis=0)
+        # Update the weights and biases for hidden layer
+        hidden_layer.weights = (1 - self.learning_rate * lin_factor / dataset_size) * \
+                                hidden_layer.weights + hidden_layer.friction
+        hidden_layer.biases += np.sum((-self.learning_rate) * hidden_layer.gradient_b, axis=0)
 
     def train(self, training_set, training_labels, batch_size, validation_set, validation_labels):
         epoch_map = {}
