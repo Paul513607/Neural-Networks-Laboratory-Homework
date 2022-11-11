@@ -1,13 +1,19 @@
+import random
+
 import numpy as np
-from sklearn.utils import shuffle
+from scipy.ndimage.interpolation import shift
+import cv2
+
 
 def accuracy(y, y_hat):
     return np.sum(y == y_hat) / len(y)
 
 
 def shuffle_sets(train_set, train_set_labels):
-    tmp_set1, tmp_set2 = shuffle(train_set, train_set_labels, random_state=0)
-    return [tmp_set1, tmp_set2]
+    temp = list(zip(train_set, train_set_labels))
+    random.shuffle(temp)
+    train_set, train_set_labels = zip(*temp)
+    return np.array(train_set), np.array(train_set_labels)
 
 
 def sigmoid_activation(z: np.ndarray):
@@ -38,3 +44,15 @@ def convert_label_to_array(label, size):
     arr = np.zeros(size)
     arr[label] = 1
     return arr
+
+
+def shift_image(image, dx, dy):
+    image = image.reshape((28, 28))
+    shifted_image = shift(image, [dy, dx], cval=0, order=0)
+    return shifted_image.reshape(784)
+
+
+def rotate_image(image, angle):
+    image = image.reshape((28, 28))
+    rotated_image = cv2.warpAffine(image, cv2.getRotationMatrix2D((14, 14), angle, 1), (28, 28))
+    return rotated_image.reshape(784)

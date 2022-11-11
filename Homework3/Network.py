@@ -39,7 +39,7 @@ class Network:
         output_layer.activation_for_layer(output, util.softmax_activation)
         return output_layer.activation
 
-    def backpropagation(self, train_set, train_labels, lin_factor, friction_param, dataset_size):
+    def backpropagation(self, train_set, train_labels, lin_factor, beta, dataset_size):
         output_layer = self.layers[-1]
         hidden_layer = self.layers[-2]
 
@@ -54,9 +54,8 @@ class Network:
         output_layer.gradient_b = output_layer.error
 
         # Update layer friction
-        if output_layer.friction is None:
-            output_layer.friction = np.zeros(output_layer.gradient_w.shape)
-        output_layer.friction = friction_param * output_layer.friction - (self.learning_rate / len(train_set)) * output_layer.gradient_w
+        output_layer.friction = beta * output_layer.friction \
+                                - (self.learning_rate / len(train_set)) * output_layer.gradient_w
 
         # Update the weights and biases for output layer
         output_layer.weights = (1 - self.learning_rate * lin_factor / dataset_size) * output_layer.weights \
@@ -72,10 +71,8 @@ class Network:
         hidden_layer.gradient_b = hidden_layer.error
 
         # Update first layer friction
-        if hidden_layer.friction is None:
-            hidden_layer.friction = np.zeros(hidden_layer.gradient_w.shape)
-        hidden_layer.friction = friction_param * hidden_layer.friction - \
-                               (self.learning_rate / len(train_set)) * hidden_layer.gradient_w
+        hidden_layer.friction = beta * hidden_layer.friction \
+                                - (self.learning_rate / len(train_set)) * hidden_layer.gradient_w
 
         # Update the weights and biases for hidden layer
         hidden_layer.weights = (1 - self.learning_rate * lin_factor / dataset_size) * \
@@ -83,11 +80,12 @@ class Network:
         hidden_layer.biases += np.sum((-self.learning_rate) * hidden_layer.gradient_b, axis=0)
 
     def train(self, training_set, training_labels, batch_size, validation_set, validation_labels):
+        training_set, training_labels = util.shuffle_sets(training_set, training_labels)
         epoch_map = {}
         for epoch in range(self.epochs):
             for batch in range(0, len(training_set), batch_size):
                 self.backpropagation(training_set[batch:batch + batch_size], training_labels[batch:batch + batch_size],
-                                     5, 0.9, len(training_set[0]))
+                                     5, 0.9, len(training_set))
             print(f"Epoch {epoch + 1} completed")
             copy = self.make_copy()
             epoch_map[epoch] = (copy, self.validate(validation_set, validation_labels))

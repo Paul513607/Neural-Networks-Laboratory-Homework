@@ -19,7 +19,7 @@ class Layer:
         self.error = None
         self.gradient_w = None
         self.gradient_b = None
-        self.friction = None
+        self.friction = np.zeros((inputs_count, neurons_count))
         self.activation = np.zeros((1, 1))
         self.inputs_count = inputs_count
         self.neurons_count = neurons_count
