@@ -12,7 +12,7 @@ def augment_train_set(train_set):
     train_labels_augmented = [item for item in train_set[1]]
 
     counter = 0
-    for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+    for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, -1)]: # (-1, 1), (1, 1), (-1, -1)]:
         for image, label in zip(train_set[0], train_set[1]):
             counter += 1
             shifted_image = util.shift_image(image, dx, dy)

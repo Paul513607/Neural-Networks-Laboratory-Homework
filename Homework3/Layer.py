@@ -30,12 +30,12 @@ class Layer:
         z = (input_data @ self.weights) + self.biases
         return z
 
-    def activation_for_layer(self, output: np.ndarray, activation_function: Callable[[np.ndarray], np.ndarray]):
+    def compute_activ(self, output: np.ndarray, activation_function: Callable[[np.ndarray], np.ndarray]):
         activation = []
         for row in output:
             activation += [activation_function(row)]
         self.activation = np.row_stack(activation)
         
-    def compute_activation(self, input_data, activation_function: Callable[[np.ndarray], np.ndarray]):
+    def get_activation(self, input_data, activation_function: Callable[[np.ndarray], np.ndarray]):
         self.activation = activation_function(self.eval(input_data))
         return self.activation

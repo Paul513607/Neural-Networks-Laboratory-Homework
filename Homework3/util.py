@@ -5,8 +5,8 @@ from scipy.ndimage.interpolation import shift
 import cv2
 
 
-def accuracy(y, y_hat):
-    return np.sum(y == y_hat) / len(y)
+def accuracy(y, t):
+    return np.sum(y == t) / len(y)
 
 
 def shuffle_sets(train_set, train_set_labels):
@@ -24,12 +24,12 @@ def sigmoid_activation_derivative(z: np.ndarray):
     return sigmoid_activation(z) * (1 - sigmoid_activation(z))
 
 
-def cross_entropy(y: np.ndarray, y_hat: np.ndarray):
-    return -np.sum(y * np.log(y_hat))
+def cross_entropy(y: np.ndarray, t: np.ndarray):
+    return -np.sum(y * np.log(t))
 
 
-def cross_entropy_derivative(y: np.ndarray, y_hat: np.ndarray):
-    return y - y_hat
+def cross_entropy_derivative(y: np.ndarray, t: np.ndarray):
+    return y - t
 
 
 def softmax_activation(z: np.ndarray):

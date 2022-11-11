@@ -32,11 +32,11 @@ class Network:
         training_input = training_set
         for layer in self.layers[:-1]:
             output = layer.eval(training_input)
-            layer.activation_for_layer(output, util.sigmoid_activation)
+            layer.compute_activ(output, util.sigmoid_activation)
             training_input = layer.activation
         output_layer = self.layers[-1]
         output = output_layer.eval(training_input)
-        output_layer.activation_for_layer(output, util.softmax_activation)
+        output_layer.compute_activ(output, util.softmax_activation)
         return output_layer.activation
 
     def backpropagation(self, train_set, train_labels, lin_factor, beta, dataset_size):
@@ -53,7 +53,6 @@ class Network:
         output_layer.gradient_w = np.dot(hidden_layer.activation.T, output_layer.error)
         output_layer.gradient_b = output_layer.error
 
-        # Update layer friction
         output_layer.friction = beta * output_layer.friction \
                                 - (self.learning_rate / len(train_set)) * output_layer.gradient_w
 
@@ -70,7 +69,6 @@ class Network:
         hidden_layer.gradient_w = np.dot(train_set.T, hidden_layer.error)
         hidden_layer.gradient_b = hidden_layer.error
 
-        # Update first layer friction
         hidden_layer.friction = beta * hidden_layer.friction \
                                 - (self.learning_rate / len(train_set)) * hidden_layer.gradient_w
 
