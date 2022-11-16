@@ -16,13 +16,14 @@ def shuffle_sets(train_set, train_set_labels):
 
 
 class Perceptron:
-    def __init__(self, speciality_value, lr=0.01, epochs=10):
+    def __init__(self, speciality_value, lr=0.01, epochs=1):
         self.W = None
         self.B = None
 
         self.speciality_value = speciality_value
         self.lr = lr
         self.epochs = epochs
+        self.accur = 0
 
     def mini_batch(self, train_set, train_set_labels, batch_size=32):
         train_set, train_set_labels = shuffle(train_set, train_set_labels)
@@ -109,3 +110,8 @@ class Perceptron:
             if y == t:
                 correct += 1
         return correct / len(test_set_labels)
+
+    def predict(self, input_arr):
+        input_arr = np.insert(input_arr, 0, 1)
+        z = np.dot(input_arr, self.W) + self.B
+        return activation(z)

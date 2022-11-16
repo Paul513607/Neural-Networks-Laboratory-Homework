@@ -21,6 +21,7 @@ if __name__ == '__main__':
         print(e)
 
     try:
-        print("Solution using numpy equation system solver: ", numpy.linalg.solve(coefficient_matrix_np, results_matrix_np))
+        print("Solution using numpy equation system solver: ", numpy.linalg.solve(coefficient_matrix_np,
+                                                                                  results_matrix_np))
     except Exception as e:
         print(e)
